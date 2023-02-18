@@ -1,4 +1,4 @@
-
+import random
 
 class Card():
     "Models 52 cards in a game; 13 ranks and 4 suits"
@@ -52,18 +52,49 @@ class Deck:
         self.cards = []
         #populate list with cards ( note that cards are objects)
         for suit in range(0,4):
-            #range starts from 1 because None is not a card
+            #range starts from 1 - 13 because None is not a card
             for rank in range(1,14):
                 card = Card(suit,rank)
                 self.cards.append(card)
 
     def __str__(self) -> str:
-        #convert the list of card objects to a list of string names then list to a string
+        #convert the list of card objects to a list of string names then list to a string to display to user
         cards = []
         for card in self.cards:
             cards.append(str(card))
 
-        return ",".join(cards)
+        return "\n".join(cards)
+    #veneer methods
+
+    def pop_card(self):
+        self.cards.pop()
+
+    def add_card(self,card):
+        self.cards.append(card)
+
+    def shuffle(self):
+        random.shuffle(self.cards)
+
+    # a serious method
+
+    def sort_cards(self):
+        cards_dict = {}
+        for card in self.cards:
+            #create a key that uniquely identifies each card ( combines suit and rank)
+            key = int(str(card.suit) + str(card.rank))
+            cards_dict[key] = card
+
+        #sort dictionary
+        sorted_cards = sorted(cards_dict.items(), key=lambda t : t[0])
+
+        # revert the list of cards only
+        self.cards = [cards[1] for cards in sorted_cards]
+
+    def sort_cards1(self):
+        self.cards.sort()
+        
+
+
 
 
 
@@ -72,14 +103,10 @@ class Deck:
 
 if __name__ == "__main__":
 
-    deck = Deck()
 
+    deck = Deck()
+    deck.shuffle()
+    deck.sort_cards1()
     print(deck)
 
-    card1 = Card(0,3)
-    card2 = Card(3,6)
-
-    ans = card1 == card1
-    print(card1)
-    print(card2)
-    print(ans)
+ 
