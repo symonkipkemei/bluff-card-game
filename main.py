@@ -130,8 +130,58 @@ class Deck:
         
         for i in range(num):
             hand.add_card(self.pop_card())
-            
+
+
+    def next_cards(self):
+        """Establish the next possible cards to be played , based on the opening card on the deck
+
+        Args:
+            other (any): the deck
+        """
+
+        #determine the last card no on the deck
+        last_card = self.cards[-1]
+        last_card_no = last_card.card_no()
+
+        # the last rank and suit
+        last_suit = last_card_no[0]
+        last_rank = last_card_no[1:]
         
+        # possible_cards to be played
+        possible_cards = []
+
+
+        # establish the next card of the same suit
+        next_suit = int(last_suit)
+        next_rank = int(last_rank) + 1
+
+        if next_rank > 13:
+            next_rank = 1
+            
+        card = Card(next_suit,next_rank)
+
+        possible_cards.append(card)
+
+
+        # establish the next card of different suits but same rank
+        next_rank = last_rank
+        for next_suit in range(1,5):
+            if next_suit != int(last_suit):
+                card = Card(next_suit,next_rank)
+                possible_cards.append(card)
+
+        #display cards
+
+        cards = []
+        for card in possible_cards:
+            cards.append(str(card))
+
+        display_cards = "\n".join(cards)
+        print(display_cards)
+
+
+        return possible_cards   
+    
     
     def last_card(self):
         "establishes the last card"
@@ -150,77 +200,45 @@ class ComputerHand(Deck):
         self.cards = []
         self.label = label
 
+    def right_cards(self,other):
+        #etablish the cards that are right and consistent to be the next possible cards and available in your hand
+        self.right_cards = []
+        for my_card in self.cards:
+            for next_card in other.next_cards():
+                if my_card == next_card:
+                    self.right_cards.append(my_card)
+        
+        return self.right_cards
+
+
     def next_move(self,other):
-        #determine the last card no
-        last_card = other.last_card()
-        #concatenate the suit and rank
-        last_card_no = last_card.card_no()
-        
-        #search if the next card is within your deck
-        next_suit = last_card_no[0]
-        next_rank = int(last_card_no[1:]) + 1
-        next_card_no = next_suit + str(next_rank)
-    
-   
+       
+        #if the right card list is none, it means we do not have the correct card, we have to pick or lie
 
-        #create a dictionary that maps the key and the card as the value
-        key_card = {}
-        for card in self.cards:
-            key_card[card.card_no()] = card
-        
-        if (next_card_no) in key_card.keys():
-            next_card = key_card[next_card_no]
+        if self.right_cards is not None:
+            card_choice = random.choice(self.right_cards)
 
-            print(f"{self.label} plays {next_card}")
-
-            #cards moved from the computer to the deck
-            self.remove_card(next_card)
-            other.add_card(next_card)
-
-
-            card_choice = next_card
-          
-        #check if there is any card of different suit but same rank within your hand
-        
-        elif next_card_no[1:] in [card[1:] for card in key_card.keys()]:
-
-            suit_option = { card[1:]:card[0] for card in key_card.keys()}
-            rank = next_card_no[1:]
-            suit = suit_option[rank]
-            next_card = Card(rank,suit)
-
-            print(f"{self.label} plays {next_card}")
-
-            #cards moved from the computer to the deck
-            self.remove_card(next_card)
-            other.add_card(next_card)
-
-            card_choice = next_card
-        
         else:
-            #if the right card is not available, the computer chooses between 
-
             #computer intuitively chooses between lying and picking
             #it should be able to lie more
 
             user_choice = ["pick", "lie","lie"]
             choice = random.choice(user_choice)
-            
+
             if choice == user_choice[0]:
                 print(f"{self.label} picks the next card from the deck")
+
                 #cards moved from the deck to the user
                 other.move_cards(self,1)
                 card_choice = None
-
+            
             else :
-                #randomly select a card to lie with
-                choice = random.choice(self.cards)
-                #lie
-                next_card_suit, next_card_rank = card_name(next_card_no)
-                next_card = Card(next_card_suit,next_card_rank)
-                print("computer lied")
+                #randomly select a card to play
+                card_choice = random.choice(self.cards)
 
-                print(f"{self.label} plays {next_card}")
+                # randomly selects the card (the appropiate one) to lie with,not that this is a lie
+                lie_choice = random.choice(other.next_cards())
+                print(f"{self.label} plays {lie_choice}")
 
                 #cards moved from the computer to the deck
                 self.remove_card(choice)
@@ -228,12 +246,44 @@ class ComputerHand(Deck):
 
                 card_choice = choice
 
-        #state the number of cards remaining
-        print(f"\n{self.label} cards remaining are {len(self.cards)}")
-        print(f"Deck cards remaining are {len(other.cards)}")
-
         return card_choice
 
+            
+
+
+class HumanHand(ComputerHand):
+    def next_move(self, other):
+        # display possible play options and let the user decide
+        displayed_cards_1 = {}
+        displayed_cards_2 = {}
+
+        print("Correct and available cards to play")
+
+        if self.right_cards is not None:
+            for index,card in enumerate(self.right_cards,1):
+                displayed_cards_1[index] = card
+                print( f"{index}:{card}")
+        else:
+            print("[not available]")
+
+        
+        print("Cards that you can lie , you've played ")
+        possible_lie_cards = []
+        for card in other.next_cards():
+            if card not in self.cards:
+                possible_lie_cards.append(card)
+
+
+        for index, card in enumerate(possible_lie_cards, len(self.right_cards)):
+            displayed_cards_1[index] = card
+            print( f"{index}:{card}")
+
+        print("0. Pick a card from the deck")
+
+        userchoice = int(input("select card to play, (0) to pick a card from the deck"))
+            
+    
+        
 
 def bluff():
 
@@ -287,17 +337,17 @@ def main():
     print(f"_____________________\nComputers hand \n***************\n{computer_hand}\n_____________________")
 
     #player plays
-    card_choice = computer_hand.next_move(deck)
+    card_choice,last_card= computer_hand.next_move(deck)
 
     # call bluff
     ans = bluff()
 
     if ans is True and not None:
         # check oppoonents card
-        print(f"last_card:{deck.last_card()}")
+        print(f"last_card:{last_card}")
         print(f"card played:{card_choice}")
 
-        if card_choice == deck.last_card():
+        if card_choice == last_card:
             print("It is not a bluff, you got it wrong!")
         else:
             print("Its a bluff!")
@@ -311,7 +361,20 @@ def main():
 
 if __name__ == "__main__":
 
-    main()
+    #objects
+    deck = Deck()
+    symon = ComputerHand("kIP")
+
+    #deck
+
+    deck.shuffle
+    deck.move_cards(symon,8)
+
+  
+
+    print(deck.next_cards())
+
+   
 
     
 
