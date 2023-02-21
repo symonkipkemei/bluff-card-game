@@ -35,8 +35,8 @@ class Card():
             rank (int): card rank
             
         """
-        self.rank = rank
-        self.suit = suit
+        self.rank = int(rank)
+        self.suit = int(suit)
 
     def __str__(self) -> str:
         return f"{Card.rank_names[self.rank]} of {Card.suit_names[self.suit]}"
@@ -102,22 +102,7 @@ class Deck:
     def shuffle(self):
         random.shuffle(self.cards)
 
-    # a serious method
-
     def sort_cards(self):
-        cards_dict = {}
-        for card in self.cards:
-            #create a key that uniquely identifies each card ( combines suit and rank)
-            key = int(str(card.suit) + str(card.rank))
-            cards_dict[key] = card
-
-        #sort dictionary
-        sorted_cards = sorted(cards_dict.items(), key=lambda t : t[0])
-
-        # revert the list of cards only
-        self.cards = [cards[1] for cards in sorted_cards]
-
-    def sort_cards1(self):
         self.cards.sort()
 
     def move_cards(self,hand,num:int):
@@ -165,20 +150,12 @@ class Deck:
 
         # establish the next card of different suits but same rank
         next_rank = last_rank
+
+        
         for next_suit in range(1,5):
             if next_suit != int(last_suit):
                 card = Card(next_suit,next_rank)
                 possible_cards.append(card)
-
-        #display cards
-
-        cards = []
-        for card in possible_cards:
-            cards.append(str(card))
-
-        display_cards = "\n".join(cards)
-        print(display_cards)
-
 
         return possible_cards   
     
@@ -213,12 +190,9 @@ class ComputerHand(Deck):
 
     def next_move(self,other):
        
-        #if the right card list is none, it means we do not have the correct card, we have to pick or lie
+        #if the right card list is empty, it means we do not have the correct card, we have to pick or lie
 
-        if self.right_cards is not None:
-            card_choice = random.choice(self.right_cards)
-
-        else:
+        if not self.right_cards:
             #computer intuitively chooses between lying and picking
             #it should be able to lie more
 
@@ -230,7 +204,7 @@ class ComputerHand(Deck):
 
                 #cards moved from the deck to the user
                 other.move_cards(self,1)
-                card_choice = None
+                card_choice = 0
             
             else :
                 #randomly select a card to play
@@ -241,15 +215,28 @@ class ComputerHand(Deck):
                 print(f"{self.label} plays {lie_choice}")
 
                 #cards moved from the computer to the deck
-                self.remove_card(choice)
-                other.add_card(choice)
+                self.remove_card(card_choice)
+                other.add_card(card_choice)
 
                 card_choice = choice
 
+        else:
+            card_choice = random.choice(self.right_cards)
+
+
         return card_choice
 
-            
+    def calls_bluff(self):
+        options = ["y", "n"]
+        user_choice = random.choice(options)
 
+        if user_choice == str.lower("y"):
+            return True
+        elif user_choice == str.lower("n"):
+            return False
+           
+ 
+        
 
 class HumanHand(ComputerHand):
     def next_move(self, other):
@@ -281,12 +268,24 @@ class HumanHand(ComputerHand):
         print("0. Pick a card from the deck")
 
         userchoice = int(input("select card to play, (0) to pick a card from the deck"))
+    
+    def calls_bluff(self):
+        while True:
+            user_choice =str(input("Call bluff ? (y/n): "))
+            if user_choice == str.lower("y"):
+                return True
+                break
+            elif user_choice == str.lower("n"):
+                return False
+                break
+            else:
+                print("wrong input try again")
+
+    
             
     
-        
 
 def bluff():
-
     while True:
         user_choice =str(input("Call bluff ? (y/n): "))
         if user_choice == str.lower("y"):
@@ -299,49 +298,7 @@ def bluff():
             print("wrong input try again")
 
         
-
-
-def main():
-        #objects are identified
-    deck = Deck()
-
-    print("WELCOME TO THE BLUFF GAME \nIf you are not cheating you are not trying enough\nEnjoy!\n")
-
-
-    print("Cards are shuffled")
-    deck.shuffle()
-    time.sleep(10)
-    print("\nshuffling is complete\n")
-    
-
-    # playing hands are identified
-    username = "symon"
-    computer_hand = ComputerHand("computer")
-
-
-    # players are allocated cards
-    print("allocating 10 cards to players")
-    
-    deck.move_cards(computer_hand,10)
-
-    time.sleep(10)
-
-
-    print(f"\nThe card opening the game is {deck.last_card()}, card no {deck.last_card().card_no()}")
-
-  
-
-
-    print(f"The current player is {computer_hand.label}")
-    #display players cards
-    print(f"_____________________\nComputers hand \n***************\n{computer_hand}\n_____________________")
-
-    #player plays
-    card_choice,last_card= computer_hand.next_move(deck)
-
-    # call bluff
-    ans = bluff()
-
+def bluff_outcome(last_card, card_choice,ans = True):
     if ans is True and not None:
         # check oppoonents card
         print(f"last_card:{last_card}")
@@ -349,37 +306,79 @@ def main():
 
         if card_choice == last_card:
             print("It is not a bluff, you got it wrong!")
+            #  move deck to the appropiate person, with exception of the last card
         else:
             print("Its a bluff!")
+            #  move deck to the appropiate person, with exception of the last card
+
+def main():
+        #objects are identified
+    deck = Deck()
+
+    # welcome
+
+    print("WELCOME TO THE BLUFF GAME \nIf you are not cheating you are not trying enough\nEnjoy!\n")
+
+
+    # cards shuffled
+
+    print("Cards are shuffled")
+    deck.shuffle()
+  
+    print("\nshuffling is complete\n")
+    
+
+    # playing hands are identified
+    print("\nPlayers are identified\n")
+    
+
+    computer_hand = ComputerHand("computer")
+    human_hand = HumanHand("Symon")
+
+    print(computer_hand.label)
+    print(human_hand.label)
+
+
+    # players are allocated cards
+    print("\nallocating 10 cards to players\n")
+    
+    deck.move_cards(computer_hand,10)
+    deck.move_cards(human_hand,10)
+
+    ## opening card identified
+    
+    print(f"\nThe card opening the game is {deck.last_card()}, card no {deck.last_card().card_no()}")
+
+
+
+    # COMPUTER PLAYS
+
+    #display players cards
+    print(f"_____________________\n{computer_hand.label} \n***************\n{computer_hand}\n_____________________")
+
+    #player plays, establish the right cards first
+    computer_hand.right_cards(deck)
+    card_choice = computer_hand.next_move(deck)
+    last_card = deck.cards[-2]
+
+    # the user decides to call bluff or not, if not the game conitnues
+
+    ans = computer_hand.calls_bluff()
+    bluff_outcome(last_card,card_choice,ans)
+    
         
+    # HUMAN PLAYS
 
+    #display players cards
+    print(f"_____________________\n{human_hand.label} \n***************\n{human_hand}\n_____________________")
 
-        # check if the computer lied
+    #player plays, establish the right cards first
+    human_hand.right_cards(deck)
+    card_choice,last_card= human_hand.next_move(deck)
 
-
+    ans = human_hand.calls_bluff()
+    bluff_outcome(last_card,card_choice,ans)
 
 
 if __name__ == "__main__":
-
-    #objects
-    deck = Deck()
-    symon = ComputerHand("kIP")
-
-    #deck
-
-    deck.shuffle
-    deck.move_cards(symon,8)
-
-  
-
-    print(deck.next_cards())
-
-   
-
-    
-
-
-
-
-
- 
+    main()
