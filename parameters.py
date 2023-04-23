@@ -118,6 +118,15 @@ class Deck:
             i (int, optional): index of card to be popped. Defaults to -1.
         """
         return self.cards.pop(i)
+    
+    def remove_card(self,card):
+        "removes a specific card from the deck"
+        return self.cards.remove(card)
+    
+    def insert_card_at_beginning(self,card):
+        "Insert a specific card to the first index"
+        return self.cards.insert(0,card)
+
 
     def add_card(self,card):
         self.cards.append(card)
@@ -128,16 +137,59 @@ class Deck:
     def sort_cards(self):
         self.cards.sort()
 
-    def move_cards(self,hand,num:int):
-        """cards changes location from the deck to the hands
+    def last_card(self) -> Card:
+        """establishes the last card
+
+        Returns:
+            Card: last card in the deck
+        """
+        
+        return self.cards[-1]
+
+
+
+    def move_cards(self,other,num:int):
+        """cards changes location from the deck to the hands, the last cards are removed
         Args:
             hand (_type_): type of hand
-            num (int): the number of hands moving
+            num (int): the number of cards changing hands
         """
         for i in range(num):
-            hand.add_card(self.pop_card())
+            other.add_card(self.pop_card())
 
-    def possible_cards_played(self) -> list:
+    def move_card(self,other,card):
+        """One specific card is changing hands
+        the card is moved to the first index of the next hand from the current self list
+
+        Args:
+            card_no (_type_): _description_
+        """
+
+        # remove card from the self list
+
+        self.remove_card(card)
+
+        # place same card in the other list
+
+        other.insert_card_at_beginning(card)
+ 
+            
+        
+
+
+  
+
+    
+
+class Hand(Deck):
+    """instantiate the hand of the player, inherites from the class Deck"""
+    def __init__(self, label_name) -> None:
+        """ cards are empty at the commencment"""
+        self.cards = []
+        self.label = label_name
+    
+
+def next_cards(last_card:Card) -> list:
         """Establish the next possible cards to be played , based on the last card on the deck
 
         Returns:
@@ -145,7 +197,6 @@ class Deck:
         """
         
         #determine the last card no on the deck
-        last_card = self.cards[-1]
         last_card_no = last_card.card_no()
 
         # the last rank and suit
@@ -177,31 +228,83 @@ class Deck:
 
         return possible_cards   
     
-    
-    def last_card(self):
-        "establishes the last card"
-        return self.cards[-1]
+def right_cards(cards_in_hand:list, possible_cards:list) -> list:
+    """Check if possible cards is in cards in hand
 
-    def remove_card(self,card):
-        "removes a specific card from the deck"
-        return self.cards.remove(card)
+    Args:
+        cards_in_hand (list): cards in hand
+        possible_cards (list): possible cards to be played in the next move
+
+    Returns:
+        list: The corrrect cards in the nad
+    """
+
+    correct_cards = []
+
+    #loop through the  cards in hand, checking if the card is in possible cards
+
+    for card_hand in cards_in_hand:
+        for card_possible in possible_cards:
+            if int(card_hand.card_no()) == int(card_possible.card_no()):
+                correct_cards.append(card_hand)
+
+    return correct_cards
+
+    
+
 
 
 if __name__ == "__main__":
+
+
+    #cards in a deck
     deck = Deck()
-    #deck of cards
-    print(deck)
+    
 
-    # last card
-    print(deck.last_card())
+    # cards in the hand
+    symon = Hand()
+  
 
-    #possible cards 
-    print("possible cards")
+    #move cards from the deck to the hand
 
-    for card in deck.possible_cards_played():
+    deck.move_cards(symon, 10)
+    deck.shuffle()
+
+    #check the number of cards in the players hand
+
+    #check the last card in the deck
+    last_card = deck.last_card()
+
+    #establish the possible cards 
+    cards_possible = next_cards(last_card)
+    print("\nPOSSIBLE CARDS ")
+
+    for card in cards_possible:
         print(card)
 
-    #move the last cards on the deck to another deck
-    print("New cards")
-    print(deck.remove_card(20))
 
+    # Print cards in the hand
+
+
+    print("\nPOSSIBLE CARDS ")
+
+    for card in cards_possible:
+        print(card)
+
+
+    print("\nCARDS IN HAND")
+    for card in symon.cards:
+        print(card)
+
+
+    #establish the correct cards 
+    cards_right= right_cards(symon.cards, cards_possible)
+
+    print("\n RIGHT CARDS ")
+
+    for card in cards_right:
+        print(card)
+
+
+
+   
