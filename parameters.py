@@ -251,60 +251,85 @@ def right_cards(cards_in_hand:list, possible_cards:list) -> list:
     return correct_cards
 
     
+def bluff_card(cards_in_hand:list,possible_cards:list,auto_lie = True) -> tuple:
+    """Selects a card to lie with and card to play from a collections of cards/options respectively
 
+    Args:
+        cards_in_hand (list): The cards in the players hand
+        possible_cards (list): The possible correct cards based on the last card played, that the player can possibly lie with
+        auto_lie (bool, optional): Autoselect card_lie and card_play. Defaults to True.
+
+    Returns:
+        tuple: card_lie, card_play
+    """
+
+    if auto_lie:
+        card_lie = random.choice(possible_cards)
+        card_play = random.choice(cards_in_hand)
+    else:
+        #CARD LIE
+        #_______________________________
+        #est card map
+        card_map = {}
+        # display cards to user
+        for index, card in enumerate(possible_cards):
+            print(f"{index}:{card}")
+            card_map[index] = card
+
+        #user to select the card_lie
+        card_lie_index = int(input("\nSelect the card to lie with"))
+        card_lie = card_map[card_lie_index]
+
+        #CARD PLAY
+        #_______________________________
+        #est card map
+        card_map = {}
+        # display cards to user
+        for index, card in enumerate(cards_in_hand):
+            print(f"{index}:{card}")
+            card_map[index] = card
+
+        #user to select the card_lie
+        card_play_index = int(input("\nSelect the card to play with"))
+        card_play = card_map[card_play_index]
+
+    return (card_lie, card_play)
+        
+
+def call_bluff(autobluff= True)-> bool:
+    """Call Bluff
+
+    Args:
+        autobluff (bool, optional):auto call bluff. Defaults to True.
+
+    Returns:
+        bool: Return True if call bluff
+
+    """
+
+    if autobluff:
+        choices = [False, True]
+        choice = random.choice[choices]
+    else:
+        print("Call bluff")
+        print("****************")
+        print("\n 1. Yes 2.No")
+        print("****************")
+        user_choice = int(input("option: "))
+
+        if user_choice == 1:
+            choice = True
+        elif user_choice == 2:
+            choice = False
+        else:
+            print("Wrong choice")
+
+    return choice
+
+
+def evaluate_bluff():
+    pass
 
 
 if __name__ == "__main__":
-
-
-    #cards in a deck
-    deck = Deck()
-    
-
-    # cards in the hand
-    symon = Hand()
-  
-
-    #move cards from the deck to the hand
-
-    deck.move_cards(symon, 10)
-    deck.shuffle()
-
-    #check the number of cards in the players hand
-
-    #check the last card in the deck
-    last_card = deck.last_card()
-
-    #establish the possible cards 
-    cards_possible = next_cards(last_card)
-    print("\nPOSSIBLE CARDS ")
-
-    for card in cards_possible:
-        print(card)
-
-
-    # Print cards in the hand
-
-
-    print("\nPOSSIBLE CARDS ")
-
-    for card in cards_possible:
-        print(card)
-
-
-    print("\nCARDS IN HAND")
-    for card in symon.cards:
-        print(card)
-
-
-    #establish the correct cards 
-    cards_right= right_cards(symon.cards, cards_possible)
-
-    print("\n RIGHT CARDS ")
-
-    for card in cards_right:
-        print(card)
-
-
-
-   
+    pass
