@@ -1,172 +1,9 @@
 import random
 import time
 
+from parameters import *
 
 
-
-
-def card_name(card_no):
-    suit = int(card_no[0])
-    rank = int(card_no[1:])
-    return (suit,rank)
-
-class Card():
-    "Models 52 cards in a game; 13 ranks and 4 suits"
-
-    #define class attributes
-
-    # suits ranked in ascending order
-    suit_names = ["None","Clubs","Diamond", "Hearts", "Spades" ]
-
-    #ranks in ascending order
-    # why 2,3...are strings
-
-    # there is card with rank 'none" we are doing this in order to allow ranks to start from index, we can avoid this by using a dictionary
-    rank_names = ["None","Ace",2, 3,4,5,6,7,8,9,10,"Jack","Queen","King"]
-
-
-    # define instance varibles
-    def __init__(self,suit = 0,rank = 2) -> None:
-        """Create an instance object
-           defaults to rank = 2, suit = 0
-
-        Args:
-        
-            rank (int): card rank
-            
-        """
-        self.rank = int(rank)
-        self.suit = int(suit)
-
-    def __str__(self) -> str:
-        return f"{Card.rank_names[self.rank]} of {Card.suit_names[self.suit]}"
-
-    def card_no(self)-> str:
-        """Each card is identified by a unique number
-
-        Returns:
-            str: Card no
-        """
-        
-        card_no = str(str(self.suit) + str(self.rank))
-        return card_no
-
-
-
-    def __lt__(self,other):
-        # check is self is less than other, suits overides ranks in strength
-        if self.suit < other.suit:
-            return True
-        elif self.suit > other.suit:
-            return False
-        #check ranks if suit is the same
-        else:
-            if self.rank < other.rank:
-                return True
-            else:
-                return False
-
-
-class Deck:
-    " cards that make up the deck"
-
-    def __init__(self) -> None:
-        self.cards = []
-        #populate list with cards ( note that cards are objects)
-        for suit in range(1,5):
-            #range starts from 1 - 13 because None is not a card
-            for rank in range(1,14):
-                card = Card(suit,rank)
-                self.cards.append(card)
-
-    def __str__(self) -> str:
-        #convert the list of card objects to a list of string names then list to a string to display to user
-        cards = []
-        for card in self.cards:
-            cards.append(str(card))
-
-        return "\n".join(cards)
-    #veneer methods
-
-    def pop_card(self, i= -1):
-        """_summary_
-
-        Args:
-            i (int, optional): index of card to be popped. Defaults to -1.
-        """
-        return self.cards.pop(i)
-
-    def add_card(self,card):
-        self.cards.append(card)
-
-    def shuffle(self):
-        random.shuffle(self.cards)
-
-    def sort_cards(self):
-        self.cards.sort()
-
-    def move_cards(self,hand,num:int):
-        """cards changes location from the deck to the hands
-
-        Args:
-            hand (_type_): type of hand
-            num (int): the number of hands moving
-        """
-        
-        for i in range(num):
-            hand.add_card(self.pop_card())
-
-
-    def next_cards(self):
-        """Establish the next possible cards to be played , based on the opening card on the deck
-
-        Args:
-            other (any): the deck
-        """
-
-        #determine the last card no on the deck
-        last_card = self.cards[-1]
-        last_card_no = last_card.card_no()
-
-        # the last rank and suit
-        last_suit = last_card_no[0]
-        last_rank = last_card_no[1:]
-        
-        # possible_cards to be played
-        possible_cards = []
-
-
-        # establish the next card of the same suit
-        next_suit = int(last_suit)
-        next_rank = int(last_rank) + 1
-
-        if next_rank > 13:
-            next_rank = 1
-            
-        card = Card(next_suit,next_rank)
-
-        possible_cards.append(card)
-
-
-        # establish the next card of different suits but same rank
-        next_rank = last_rank
-
-        
-        for next_suit in range(1,5):
-            if next_suit != int(last_suit):
-                card = Card(next_suit,next_rank)
-                possible_cards.append(card)
-
-        return possible_cards   
-    
-    
-    def last_card(self):
-        "establishes the last card"
-        return self.cards[-1]
-
-    def remove_card(self,card):
-        "removes a specific card from the deck"
-        return self.cards.remove(card)
 
 
 
@@ -252,22 +89,6 @@ class HumanHand(ComputerHand):
                 print( f"{index}:{card}")
         else:
             print("[not available]")
-
-        
-        print("Cards that you can lie , you've played ")
-        possible_lie_cards = []
-        for card in other.next_cards():
-            if card not in self.cards:
-                possible_lie_cards.append(card)
-
-
-        for index, card in enumerate(possible_lie_cards, len(self.right_cards)):
-            displayed_cards_1[index] = card
-            print( f"{index}:{card}")
-
-        print("0. Pick a card from the deck")
-
-        userchoice = int(input("select card to play, (0) to pick a card from the deck"))
     
     def calls_bluff(self):
         while True:
@@ -312,17 +133,18 @@ def bluff_outcome(last_card, card_choice,ans = True):
             #  move deck to the appropiate person, with exception of the last card
 
 def main():
-        #objects are identified
+    #objects are identified
     deck = Deck()
 
     # welcome
 
-    print("WELCOME TO THE BLUFF GAME \nIf you are not cheating you are not trying enough\nEnjoy!\n")
+    print("WELCOME TO THE BLUFF GAME \nIf you are not cheating you are not trying hard enough\nEnjoy!\n")
 
 
     # cards shuffled
 
     print("Cards are shuffled")
+    time.sleep(3)
     deck.shuffle()
   
     print("\nshuffling is complete\n")
@@ -330,24 +152,23 @@ def main():
 
     # playing hands are identified
     print("\nPlayers are identified\n")
-    
+    time.sleep(3)
 
-    computer_hand = ComputerHand("computer")
-    human_hand = HumanHand("Symon")
 
-    print(computer_hand.label)
-    print(human_hand.label)
+    computer_hand = Hand("computer")
+    human_hand = Hand("symon")
 
 
     # players are allocated cards
     print("\nallocating 10 cards to players\n")
+    time.sleep(3)
     
     deck.move_cards(computer_hand,10)
     deck.move_cards(human_hand,10)
 
     ## opening card identified
-    
     print(f"\nThe card opening the game is {deck.last_card()}, card no {deck.last_card().card_no()}")
+    time.sleep(3)
 
 
 
@@ -357,27 +178,29 @@ def main():
     print(f"_____________________\n{computer_hand.label} \n***************\n{computer_hand}\n_____________________")
 
     #player plays, establish the right cards first
-    computer_hand.right_cards(deck)
-    card_choice = computer_hand.next_move(deck)
-    last_card = deck.cards[-2]
+    last_card = deck.last_card()
+    cards_next = next_cards(last_card)
+    cards_right = right_cards(computer_hand.cards,cards_next)
 
-    # the user decides to call bluff or not, if not the game conitnues
 
-    ans = computer_hand.calls_bluff()
-    bluff_outcome(last_card,card_choice,ans)
+
+    if len(cards_right) != 0:
+        card_played = random.choice(cards_right)
+        print("computer plays", card_played )
+        computer_hand.move_card(deck,card_played)
+
+    #if there are no right cards we lie
+    else:
+        print("computer has no option but to lie")
+        print("computer plays")
+        card_lie,card_play = bluff_card(computer_hand.cards,cards_next,auto_lie=False)
+        print("card lied with:", card_lie)
+        print("card played with:",card_play)
+
+        #card played is moved from the hand to the deck
+        computer_hand.move_card(deck,card_play)
+
     
-        
-    # HUMAN PLAYS
-
-    #display players cards
-    print(f"_____________________\n{human_hand.label} \n***************\n{human_hand}\n_____________________")
-
-    #player plays, establish the right cards first
-    human_hand.right_cards(deck)
-    card_choice,last_card= human_hand.next_move(deck)
-
-    ans = human_hand.calls_bluff()
-    bluff_outcome(last_card,card_choice,ans)
 
 
 if __name__ == "__main__":
