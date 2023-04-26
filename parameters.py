@@ -272,12 +272,14 @@ def bluff_card(cards_in_hand:list,possible_cards:list,auto_lie = True) -> tuple:
         #est card map
         card_map = {}
         # display cards to user
+        print("_________________________________________________")
         for index, card in enumerate(possible_cards):
             print(f"{index}:{card}")
             card_map[index] = card
 
+        print("_________________________________________________")
         #user to select the card_lie
-        card_lie_index = int(input("\nSelect the card to lie with"))
+        card_lie_index = int(input("\nSelect the card to lie with: "))
         card_lie = card_map[card_lie_index]
 
         #CARD PLAY
@@ -285,12 +287,14 @@ def bluff_card(cards_in_hand:list,possible_cards:list,auto_lie = True) -> tuple:
         #est card map
         card_map = {}
         # display cards to user
+        print("_________________________________________________")
+
         for index, card in enumerate(cards_in_hand):
             print(f"{index}:{card}")
             card_map[index] = card
-
+        print("_________________________________________________")
         #user to select the card_lie
-        card_play_index = int(input("\nSelect the card to play with"))
+        card_play_index = int(input("\nSelect the card to play with: "))
         card_play = card_map[card_play_index]
 
     return (card_lie, card_play)
